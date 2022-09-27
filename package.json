@@ -38,7 +38,7 @@
   ],
   "repository": "https://gitlab.com/socure/socure-devicerisk-react-sdk",
   "author": "Socure <deepanker@socure.com> (https://gitlab.com/socure/socure-devicerisk-react-sdk)",
-  "license": "Private",
+  "license": "MIT",
   "bugs": {
     "url": "https://gitlab.com/socure/socure-devicerisk-react-sdk/issues"
   },
