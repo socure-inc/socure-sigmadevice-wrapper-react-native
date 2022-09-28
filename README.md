@@ -5,8 +5,8 @@ The Socure Device Risk SDK React Native bridge provides Reach developers with th
 This guide covers the integration within React, as well as React Native implementation on iOS and Android.
 
 **Minimum Requirements**
-iOS 12 and above
-Android SDK version 22 and above
+<br>iOS 12.0 and above
+<br>Android SDK version 32 and above, Kotlin version 1.6.0 and above
 
 ## Introduction
 Please read the documentation on either the [Android](https://github.com/socure-inc/socure-sigmadevice-sdk-android) or [iOS](https://github.com/socure-inc/socure-sigmadevice-sdk-ios) native library variants to understand how the Device Risk SDK works.
@@ -19,17 +19,17 @@ Add the following dependency to `package.json`:
 
 ```
 "dependencies":{
-....,
-"react-native-device-risk": "https://github.com/socure-inc/socure-sigmadevice-wrapper-react-native#1.2.1"
+	....,
+	"react-native-device-risk": "https://github.com/socure-inc/socure-sigmadevice-wrapper-react-native#1.2.1"
 }
 ```
 
 ### Android
-**Step 1: Open the module level build.gradle for the main project module and inside of the defaultConfig section, set the minSdkVersion to 22**
+**Step 1: Configuration**
+<br>Please ensure that the *compikeSDKVersion* is set to 32 (or above)
 
 **Step 2: Synchronize your gradle projects**
-
-The Android side of the Bridge should be ready to run.
+<br>The Android side of the Bridge should be ready to run.
 
 Note: If pulling from Maven, implement the below)
 ```
@@ -149,19 +149,22 @@ Copy the content of the root `index.js` file into your project, and you should b
 
 ## Set-up and configuration
 
-The main class used by the DeviceRisk SDK is `DeviceRiskManager`. All subsequent functions are available via `DeviceRiskManager`.
+All the API methods are available via `RnDeviceRisk` module. You can import the module in your code as shown below
+```
+import RnDeviceRisk from 'react-native-device-risk';
+```
 
 ### setTracker
 
 ```
-setTracker(key:String, sources:[DeviceRiskDataSources])
+await RnDeviceRisk.setTracker(<SDK Key>, <Array of DeviceRiskDataSources>)
 ```
 
-Where the `key` input parameter is your SDK key procured from the Socure admin dashboard. `DeviceRiskDataSources` is an enum that encompasses all of the different device features and services we support., and the function `setTracker` is expecting an array of `DeviceRiskDataSources` to determine which data from which services to expect.
-
-These are:
+Where the `<SDK Key>` input parameter is your SDK key procured from the Socure admin dashboard. `DeviceRiskDataSources` is an enum that encompasses all of the different device features and services we currently support. The `setTracker` method accepts  an array of `DeviceRiskDataSources` to determine the data sources that the SDK has to collect the data from.
 
 ### DeviceRiskDataSources
+
+The following is the list of various data source options provided by the SDK
 
 ```
     case device
@@ -174,36 +177,36 @@ These are:
     case pedometer
     case network
     case accessibility
-    case external
 ```
 
-If you wanted to track all services possible, for example, you would call `setTracker` as so:
+Say you want to collect data about the user device, network and locale, you will call `setTracker` as follows:
 
 ```
-DeviceRiskManager.sharedInstance.setTracker(key: "your-key-goes-here", sources:  [.device, .network, .locale])
+RnDeviceRisk.setTracker("your-sdk-key-goes-here", ["device", "network", "locale"])
+```
+
+Alternatively, if you would like to collect data from all the sources, the implementation looks as shown below:
+
+```
+RnDeviceRisk.setTracker("your-sdk-key-goes-here", Object.keys(RnDeviceRisk.getConstants()))
 ```
 
 ### sendData
 
-`sendData` communicates with Socure’s back-end services, takes all of the information provided and calculates a `UUID` for your device.  Please note: once successful, you can retrieve the calculated UUID from the `uuid` variable of `DeviceRiskManager`.
+`sendData` call sends a request with the data collected from the device to Socure’s backend. The request upon success returns with a response consisting of a unique string (`DeviceSessionID`) for the device.
 
-Call `DeviceRiskManager.sendData()`. It returns a “promise” which can then be managed with an `async/await` call or with a `.then` call.  
+Call `RnDeviceRisk.sendData()`. It returns a “promise” object which can then be managed with an `async/await` call.
 
-You can call `sendData` like so:
+The following code snippet shows an example usage of `sendData`:
 
 ```
-DeviceRiskManager.sendData().then((res) => {
-      navigation.navigate('DeviceSessionID', res);
+RnDeviceRisk.sendData().then((res) => {
+      console.log('DeviceSessionID', res);
     });
 ```
 
 ## Example
 You can checkout the example app from [here](https://github.com/socure-inc/socure-sigmadevice-demo-app-react-native). The file `App.js` shows the JS function calls used and how to ultimately retrieve the Device Risk Session ID.
-
-## Device Validation
-If you'd like to implement a device validation call using our ID Plus services from within your app, you would need to implement the appropriate network call to our `EmailAuthScore` endpoint. This call requires two parameters:
-- `modules`, which is an array object, of which you MUST include devicerisk as one of the objects inside of the array in order to use Socure's Device Risk services
-- `deviceSessionId`, which uses the `UUID` calculated by DeviceRiskManager
 
 ## FAQ's
 Make sure you are using the latest version
