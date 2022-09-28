@@ -145,10 +145,6 @@ This is explained in more detail in the [native iOS library’s documentation](h
 
 ## Usage
 
-Copy the content of the root `index.js` file into your project, and you should be set.
-
-## Set-up and configuration
-
 All the API methods are available via `RnDeviceRisk` module. You can import the module in your code as shown below
 ```
 import RnDeviceRisk from 'react-native-device-risk';
