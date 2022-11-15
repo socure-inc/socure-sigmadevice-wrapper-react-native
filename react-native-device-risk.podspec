@@ -10,14 +10,13 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => "10.0" }
+  s.platforms    = { :ios => "13.0" }
   s.source       = { :git => "https://github.com/socure-inc/socure-devicerisk-react-sdk.git", :tag => "#{s.version}" }
 
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
-
   s.dependency "React-Core"
-  s.dependency "SocureDeviceRisk", "~> 1.2.1"
+  s.dependency "SocureDeviceRisk", "~> 2.0.0"
 
 end
