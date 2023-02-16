@@ -6,7 +6,7 @@ This guide covers the integration within React, as well as React Native implemen
 
 **Minimum Requirements**
 iOS 13 and above
-Android SDK (minSdkVersion 21 / targetSdkVersion 32)
+Android SDK (minSdkVersion 22 / targetSdkVersion 32)
 
 ## Introduction
 Please read the documentation on either the [Android](https://github.com/socure-inc/socure-sigmadevice-sdk-android) or [iOS](https://github.com/socure-inc/socure-sigmadevice-sdk-ios) native library variants to understand how the Device Risk SDK works.
