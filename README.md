@@ -5,8 +5,8 @@ The Socure Device Risk SDK React Native bridge provides Reach developers with th
 This guide covers the integration within React, as well as React Native implementation on iOS and Android.
 
 **Minimum Requirements**
-<br>iOS 12.0 and above
-<br>Android SDK version 32 and above, Kotlin version 1.6.0 and above
+iOS 13 and above
+Android SDK version 33 and above
 
 ## Introduction
 Please read the documentation on either the [Android](https://github.com/socure-inc/socure-sigmadevice-sdk-android) or [iOS](https://github.com/socure-inc/socure-sigmadevice-sdk-ios) native library variants to understand how the Device Risk SDK works.
@@ -25,8 +25,7 @@ Add the following dependency to `package.json`:
 ```
 
 ### Android
-**Step 1: Configuration**
-<br>Please ensure that the *compikeSDKVersion* is set to 32 (or above)
+**Step 1: Open the module level build.gradle for the main project module and inside of the defaultConfig section, set the minSdkVersion to 33**
 
 **Step 2: Synchronize your gradle projects**
 <br>The Android side of the Bridge should be ready to run.
@@ -143,82 +142,8 @@ This is explained in more detail in the [native iOS library’s documentation](h
 
 * Run `react-native run-ios`.
 
-## Usage
-
-All the API methods are available via `RnDeviceRisk` module. You can import the module in your code as shown below
-```
-import RnDeviceRisk from 'react-native-device-risk';
-```
-
-### setTracker
-
-```
-await RnDeviceRisk.setTracker(<SDK Key>, <Array of DeviceRiskDataSources>)
-```
-
-Where the `<SDK Key>` input parameter is your SDK key procured from the Socure admin dashboard. `DeviceRiskDataSources` is an enum that encompasses all of the different device features and services we currently support. The `setTracker` method accepts  an array of `DeviceRiskDataSources` to determine the data sources that the SDK has to collect the data from.
-
-### DeviceRiskDataSources
-
-The following is the list of various data source options provided by the SDK
-
-```
-    case device
-    case accelerometer
-    case motion
-    case magnetometer
-    case locale
-    case location
-    case advertising
-    case pedometer
-    case network
-    case accessibility
-```
-
-Say you want to collect data about the user device, network and locale, you will call `setTracker` as follows:
-
-```
-RnDeviceRisk.setTracker("your-sdk-key-goes-here", ["device", "network", "locale"])
-```
-
-Alternatively, if you would like to collect data from all the sources, the implementation looks as shown below:
-
-```
-RnDeviceRisk.setTracker("your-sdk-key-goes-here", Object.keys(RnDeviceRisk.getConstants()))
-```
-
-### sendData
-
-`sendData` call sends a request with the data collected from the device to Socure’s backend. The request upon success returns with a response consisting of a unique string (`DeviceSessionID`) for the device.
-
-Call `RnDeviceRisk.sendData()`. It returns a “promise” object which can then be managed with an `async/await` call.
-
-The following code snippet shows an example usage of `sendData`:
-
-```
-RnDeviceRisk.sendData().then((res) => {
-      console.log('DeviceSessionID', res);
-    });
-```
+## Configuration and usage
+For instructions on how to configure the SDK, see the [React Native documentation](https://developer.socure.com/docs/sdks/sigma-device/react/react-overview) on DevHub.
 
 ## Example
 You can checkout the example app from [here](https://github.com/socure-inc/socure-sigmadevice-demo-app-react-native). The file `App.js` shows the JS function calls used and how to ultimately retrieve the Device Risk Session ID.
-
-## FAQ's
-Make sure you are using the latest version
-
-- Getting 'RnDeviceRisk' not found or doesn't exist?
-    Android: Make sure you added the module into the MainApplication class
-        into getPackages function `packages.add(new DeviceRiskPackage());`
-
-- Setting trackers throws an error they are not valid? (NoSuchFieldError) \n
-    You can use the `getConstants` method to know the real name of the providers.
-    Because at the native level, Android and iOS handle differently the string enum convertion. Make sure to send the right one for each platform.
-
-- Lib isn't working properly?
-    Make sure you call `setTracker` using the right token and later call `sendData`
-
-- Getting IllegalArgumentException or similar when calling function?
-    This are the argument types of each function. Check if you are sending the right one.
-
-    `setTracker (socureKey: String, providers: [String])`

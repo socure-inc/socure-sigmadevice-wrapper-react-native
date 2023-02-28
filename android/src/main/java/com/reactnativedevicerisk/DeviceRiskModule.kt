@@ -5,7 +5,7 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.facebook.react.bridge.*
 import com.socure.idplus.devicerisk.androidsdk.SDKAppDataPublic
-import com.socure.idplus.devicerisk.androidsdk.model.UploadResult
+import com.socure.idplus.devicerisk.androidsdk.model.SocureFingerprintResult
 import com.socure.idplus.devicerisk.androidsdk.sensors.DeviceRiskManager
 import java.util.*
 
@@ -71,10 +71,10 @@ class DeviceRiskModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  override fun dataUploadFinished(uploadResult: UploadResult) {
+  override fun dataUploadFinished(uploadResult: SocureFingerprintResult) {
     val response = Arguments.createMap()
 
-    response.putString("deviceRiskSessionId", uploadResult.uuid ?: "")
+    response.putString("deviceRiskSessionId", uploadResult.deviceSessionID ?: "")
 
     sendDataPromise?.resolve(response)
   }
@@ -86,7 +86,7 @@ class DeviceRiskModule(reactContext: ReactApplicationContext) : ReactContextBase
   override fun getConstants(): MutableMap<String, Any> {
     val constants = mutableMapOf<String, Any>()
     DeviceRiskManager.DeviceRiskDataSourcesEnum.values().forEach {
-      if (it.name.toLowerCase(Locale.US) != "bluetooth")
+      if (it.name.lowercase(Locale.US) != "bluetooth")
         constants[it.name] = it.name
     }
 
