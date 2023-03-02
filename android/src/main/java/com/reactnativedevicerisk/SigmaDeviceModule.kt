@@ -32,7 +32,12 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) : ReactContextBas
     val advertisingID = options.getString("advertisingID")
 
     sendDataPromise = promise
-    val apiConfig = SocureSigmaDeviceConfig(SDKKey, true, fingerprintEndpointHost, currentActivity as AppCompatActivity)
+    var activity = currentActivity
+    if (activity == null) {
+      promise.reject(Throwable(message = "Aborting since app activity object is null"))
+      return
+    }
+    val apiConfig = SocureSigmaDeviceConfig(SDKKey, true, fingerprintEndpointHost, activity as AppCompatActivity)
     val apiOptions = SocureFingerPrintOptions(omitLocationData, getContextFromString(context), advertisingID)
     val handler = Handler(reactApplicationContext.mainLooper)
     handler.post {
