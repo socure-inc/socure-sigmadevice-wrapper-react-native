@@ -1,6 +1,6 @@
 {
   "name": "react-native-device-risk",
-  "version": "2.0.7",
+  "version": "3.0.0",
   "description": "React bridge to enable iOS and Android Device RIsk SDKs to be used by React Native apps",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -27,22 +27,20 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
     "release": "release-it",
-    "example": "yarn --cwd example",
-    "pods": "cd example && pod-install --quiet",
-    "bootstrap": "yarn example && yarn && yarn pods"
+    "bootstrap": "yarn install"
   },
   "keywords": [
     "react-native",
     "ios",
     "android"
   ],
-  "repository": "https://gitlab.com/socure/socure-devicerisk-react-sdk",
-  "author": "Socure <deepanker@socure.com> (https://gitlab.com/socure/socure-devicerisk-react-sdk)",
+  "repository": "https://github.com/socure-inc/socure-sigmadevice-wrapper-react-native",
+  "author": "Socure",
   "license": "MIT",
   "bugs": {
-    "url": "https://gitlab.com/socure/socure-devicerisk-react-sdk/issues"
+    "url": "https://github.com/socure-inc/socure-sigmadevice-wrapper-react-native/issues"
   },
-  "homepage": "https://gitlab.com/socure/socure-devicerisk-react-sdk#readme",
+  "homepage": "https://github.com/socure-inc/socure-sigmadevice-wrapper-react-native",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
 
-const { RnSigmaDevice, RnDeviceRisk } = NativeModules;
+const { RnSigmaDevice } = NativeModules;
 
-export { RnSigmaDevice, RnDeviceRisk };
+export { RnSigmaDevice };

@@ -27,6 +27,7 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) : ReactContextBas
     }
 
     val fingerprintEndpointHost = config.getString("fingerprintEndpointHost") ?: ""
+    val enableBehaviorMetrics = if (config.hasKey("enableBehavioralBiometrics")) config.getBoolean("enableBehavioralBiometrics") else false
     val omitLocationData = if (options.hasKey("omitLocationData")) options.getBoolean("omitLocationData") else false
     val context = options.getString("context") ?: ""
     val advertisingID = options.getString("advertisingID")
@@ -37,7 +38,7 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) : ReactContextBas
       promise.reject(Throwable(message = "Aborting since app activity object is null"))
       return
     }
-    val apiConfig = SocureSigmaDeviceConfig(SDKKey, true, fingerprintEndpointHost, activity as AppCompatActivity)
+    val apiConfig = SocureSigmaDeviceConfig(SDKKey, true,enableBehaviorMetrics,  fingerprintEndpointHost = fingerprintEndpointHost, flagEndpointHost = "", activity = activity as AppCompatActivity)
     val apiOptions = SocureFingerPrintOptions(omitLocationData, getContextFromString(context), advertisingID)
     val handler = Handler(reactApplicationContext.mainLooper)
     handler.post {

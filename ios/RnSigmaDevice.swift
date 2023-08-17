@@ -16,7 +16,10 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
         NotificationCenter.default.post(Notification(name: Notification.Name("SOCURE_REACT_NATIVE_ENV")))
 
         let fingerprintEndpointHost = config["fingerprintEndpointHost"] as? String
-        let apiConfig = SocureSigmaDeviceConfig(SDKKey: SDKKey, fingerprintEndpointHost: fingerprintEndpointHost)
+        let enableBehavioralBiometrics = config["enableBehavioralBiometrics"] as? Bool ?? false
+        let apiConfig = SocureSigmaDeviceConfig(SDKKey: SDKKey,
+                                                fingerprintEndpointHost: fingerprintEndpointHost,
+                                                enableBehavioralBiometrics: enableBehavioralBiometrics)
 
         var apiOptions: SocureFingerprintOptions?
         if let options = options {

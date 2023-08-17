@@ -10,7 +10,7 @@ import java.util.*
 
 class DeviceRiskPackage : ReactPackage {
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
-        return listOf(DeviceRiskModule(reactContext), SigmaDeviceModule(reactContext))
+        return listOf(SigmaDeviceModule(reactContext))
     }
 
     override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {

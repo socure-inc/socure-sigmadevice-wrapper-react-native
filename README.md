@@ -73,7 +73,7 @@ buildscript {
 
            }
 ```
-> **Note:** Socure has tested the build with plugin version 1.6.0.
+> **Note:** Socure has tested the build with plugin version 1.7.0.
 
 **Step 3:**
 
@@ -88,16 +88,7 @@ dependencies {
 }
 ```
 
-> **Note:** Socure has tested the build with plugin version 1.6.0.
-
-**Step 4:**
-
-In the `(<root project dir>/android/gradle.properties)` file add the following:
-
-```
-username=Socure
-authToken=Socure
-```
+> **Note:** Socure has tested the build with plugin version 1.7.0.
 
 Build and run:
 
@@ -106,25 +97,14 @@ Build and run:
 
 ### iOS
 
-**Step 0: Install cocoapods-user-defined-build-types**
-
-Since the Socure Document Verification SDK is an XCFramework, Cocoapods doesn’t easily allow dynamic frameworks to intermingle with static libraries. This gem modifies Cocoapods to allow both to exist at the same time. Follow the instructions over at [https://github.com/joncardasis/cocoapods-user-defined-build-types](https://github.com/joncardasis/cocoapods-user-defined-build-types)
-
 **Step 1: Install Socure SDK React Native Bridge using CocoaPods (recommended)**
 
-Before your `target`, add the following:
-
-```
-plugin 'cocoapods-user-defined-build-types'
-enable_user_defined_build_types!
-```
-
-and inside your `target`, add the corresponding `pod` lines
+Inside your `target`, add the corresponding `pod` lines
 
 ```
 use_frameworks!
 
-  pod 'SocureDeviceRisk', :build_type => :dynamic_framework
+  pod 'SocureDeviceRisk'
 ```
 
 Update your pods from the terminal
