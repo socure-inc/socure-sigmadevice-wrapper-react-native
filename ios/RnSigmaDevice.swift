@@ -2,45 +2,32 @@ import DeviceRisk
 
 @objc(RnSigmaDevice)
 class RnSigmaDevice: NSObject, RCTBridgeModule {
-
-    @objc(fingerprint:options:resolver:rejecter:)
-    func fingerprint(config: [String : Any],
-                     options: [String : Any]?,
-                     resolver resolve: @escaping RCTPromiseResolveBlock,
-                     rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
-        guard let SDKKey = config["SDKKey"] as? String else {
-            reject("fingerprint_error", "Missing SDK Key in the config object", nil)
+    
+    @objc(initializeSDK:options:resolver:rejecter:)
+    func initializeSDK(SDKKey: String?,
+                       options: [String : Any]?,
+                       resolver resolve: @escaping RCTPromiseResolveBlock,
+                       rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+        guard let SDKKey = SDKKey else {
+            reject("initializeSDK_error", "Missing SDK Key", nil)
             return
         }
 
-        NotificationCenter.default.post(Notification(name: Notification.Name("SOCURE_REACT_NATIVE_ENV")))
-
-        let fingerprintEndpointHost = config["fingerprintEndpointHost"] as? String
-        let enableBehavioralBiometrics = config["enableBehavioralBiometrics"] as? Bool ?? false
-        let apiConfig = SocureSigmaDeviceConfig(SDKKey: SDKKey,
-                                                fingerprintEndpointHost: fingerprintEndpointHost,
-                                                enableBehavioralBiometrics: enableBehavioralBiometrics)
-
-        var apiOptions: SocureFingerprintOptions?
+        var sdkOptions: SigmaDeviceOptions?
         if let options = options {
             let omitLocationData = options["omitLocationData"] as? Bool
             let advertisingID = options["advertisingID"] as? String
-            var context: SocureFingerprintContext? = nil
-            if let contextString = (options["context"] as? String)?.lowercased() {
-                context = contextFromString(contextString)
-            }
-
-            apiOptions = SocureFingerprintOptions(omitLocationData: omitLocationData ?? false, advertisingID: advertisingID, context: context)
+            sdkOptions = SigmaDeviceOptions(omitLocationData: omitLocationData ?? false, advertisingID: advertisingID)
         }
-
-        SocureSigmaDevice.fingerprint(config: apiConfig, options: apiOptions) { result, error in
+        
+        SigmaDevice.initializeSDK(SDKKey, options: sdkOptions) { sessionToken, error in
             if let error = error {
                 let errorMsg: String
                 switch error {
                 case .dataFetchError:
                     errorMsg = "An error occurred while fetching the data"
                 case .dataUploadError(let code, let msg):
-                    errorMsg = "\(code ?? 0): \(msg ?? "")"
+                    errorMsg = "\(code ?? ""): \(msg ?? "")"
                 case .networkConnectionError(let nsUrlError):
                     errorMsg = nsUrlError.localizedDescription
                 case .unknownError:
@@ -48,31 +35,74 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
                 default:
                     errorMsg = "Unknown error occurred"
                 }
-                reject("fingerprint_error", errorMsg, nil)
+                reject("initialzeSDK_error", errorMsg, nil)
                 return
             }
-
-            guard let result = result else {
-                reject("fingerprint_error", "Request failed to return a device session id", nil)
+            
+            guard let sessionToken = sessionToken else {
+                reject("initialzeSDK_error", "Request failed to return a session token", nil)
                 return
             }
-
+            
             resolve([
-                "deviceSessionId": result.deviceSessionID
+                "sessionToken": sessionToken
+            ])
+        }
+        NotificationCenter.default.post(Notification(name: Notification.Name("SOCURE_REACT_NATIVE_ENV")))
+    }
+    
+    @objc(processDevice:resolver:rejecter:)
+    func processDevice(context: String?,
+                       resolver resolve: @escaping RCTPromiseResolveBlock,
+                       rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+        
+        var sigmaDeviceContext: SigmaDeviceContext = .other("Unknown")
+        if let contextString = context?.lowercased() {
+            sigmaDeviceContext = contextFromString(contextString)
+        }
+        
+        SigmaDevice.processDevice(context: sigmaDeviceContext) { sessionToken, error in
+            if let error = error {
+                let errorMsg: String
+                switch error {
+                case .dataFetchError:
+                    errorMsg = "An error occurred while fetching the data"
+                case .dataUploadError(let code, let msg):
+                    errorMsg = "\(code ?? ""): \(msg ?? "")"
+                case .networkConnectionError(let nsUrlError):
+                    errorMsg = nsUrlError.localizedDescription
+                case .unknownError:
+                    errorMsg = "Unknown error occurred"
+                default:
+                    errorMsg = "Unknown error occurred"
+                }
+                reject("process_device", errorMsg, nil)
+                return
+            }
+            
+            guard let sessionToken = sessionToken else {
+                reject("process_device", "Request failed to return a session token", nil)
+                return
+            }
+            
+            resolve([
+                "sessionToken": sessionToken
             ])
         }
     }
-
+    
     static func requiresMainQueueSetup() -> Bool {
         return true
     }
-
+    
     static func moduleName() -> String! {
         return "RnSigmaDevice"
     }
-
-    private func contextFromString(_ contextString: String) -> SocureFingerprintContext {
-        if contextString == "homepage" {
+    
+    private func contextFromString(_ contextString: String) -> SigmaDeviceContext {
+        if contextString == "default" {
+            return .default
+        } else if contextString == "homepage" {
             return .homepage
         } else if contextString == "signup" {
             return .signup
