@@ -1,10 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-
-// apply plugin: 'com.github.dcendents.android-maven'
-group = "com.github.socure-inc"
 
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
@@ -13,14 +9,12 @@ buildscript {
   repositories {
     google()
     jcenter()
-    maven {
-      url "https://jitpack.io"
-    }
+    maven {url "https://sdk.socure.com/"}
   }
 
   dependencies {
     classpath 'com.android.tools.build:gradle:7.4.2'
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.0"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
   }
 }
 
@@ -33,16 +27,18 @@ def getExtOrIntegerDefault(name) {
 }
 
 android {
-  compileSdkVersion 32
-  buildToolsVersion "29.0.2"
+  compileSdkVersion 34
+  buildToolsVersion "30.0.3"
 
   defaultConfig {
-    minSdkVersion 22
-    targetSdkVersion 32
+    minSdkVersion 21
+    targetSdkVersion 34
     versionCode 10016
-    versionName "1.0.0.16.pre-release"
+    versionName "4.0.0"
     multiDexEnabled true
   }
+
+  tasks.register("prepareKotlinBuildScriptModel"){}
 
   buildTypes {
     debug {
@@ -57,8 +53,8 @@ android {
     disable 'GradleCompatible'
   }
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
   }
 }
 
@@ -66,123 +62,21 @@ repositories {
   mavenCentral()
   jcenter()
   google()
-
-    def found = false
-    def defaultDir = null
-    def androidSourcesName = 'React Native sources'
-
-    // if (rootProject.ext.has('reactNativeAndroidRoot')) {
-    //   defaultDir = rootProject.ext.get('reactNativeAndroidRoot')
-    // } else {
-    //   defaultDir = new File(
-    //           projectDir,
-    //           '/../../../node_modules/react-native/android'
-    //   )
-    // }
-
-    // if (defaultDir.exists()) {
-    //   maven {
-    //     url defaultDir.toString()
-    //     name androidSourcesName
-    //   }
-
-    //   logger.info(":${project.name}:reactNativeAndroidRoot ${defaultDir.canonicalPath}")
-    //   found = true
-    // } else {
-
-
-    //   //Checking if building for local or JitPack
-      def isJitpack = projectDir.absolutePath.indexOf('jitpack') > -1
-    //   def parentDir = isJitpack ? rootProject.projectDir : projectDir
-    //   println "projectDir ${parentDir}"
-    //   //If at some point the RN version is updated, update the react_modules with the
-    //   // react-native folder inside of node_modules
-    //   def androidSrcPath = ""
-    //   def androidPreBuildPath = ""
-
-      if(isJitpack) {
-    //     androidSrcPath = "build/react_modules/react-native"
-    //     androidPreBuildPath = "build/react_modules/react-native/android"
-        println "Creating gradle.properties"
-        def gProperties = new File(projectDir, 'gradle.properties')
-        gProperties.append("android.useAndroidX=true\n")
-        gProperties.append("android.enableJetifier=true\n")
-        gProperties.append("kapt.incremental.apt=false\n")
-      }
-    //   } else {
-    //     androidSrcPath = "node_modules/react-native"
-    //     androidPreBuildPath = "node_modules/react-native/android"
-    //   }
-
-    //   1.upto(5, {
-    //     if (found) return true
-    //     println "droid ${parentDir.parentFile}"
-    //     if(parentDir.parentFile) {
-    //       parentDir = parentDir.parentFile
-
-    //       def androidSourcesDir = new File(
-    //             parentDir,
-    //             androidSrcPath
-    //       )
-
-    //       def androidPrebuiltBinaryDir = new File(
-    //               parentDir,
-    //               androidPreBuildPath
-    //       )
-
-    //       if (androidPrebuiltBinaryDir.exists()) {
-    //         maven {
-    //           url androidPrebuiltBinaryDir.toString()
-    //           name androidSourcesName
-    //         }
-
-    //         logger.info(":${project.name}:reactNativeAndroidRoot ${androidPrebuiltBinaryDir.canonicalPath}")
-    //         found = true
-    //       } else if (androidSourcesDir.exists()) {
-    //         maven {
-    //           url androidSourcesDir.toString()
-    //           name androidSourcesName
-    //         }
-
-    //         logger.info(":${project.name}:reactNativeAndroidRoot ${androidSourcesDir.canonicalPath}")
-    //         found = true
-    //       }
-    //     }
-    //   })
-    // }
-
-    // if (!found) {
-    //   throw new GradleException(
-    //           "${project.name}: unable to locate React Native android sources. " +
-    //                   "Ensure you have you installed React Native as a dependency in your project and try again."
-    //   )
-    // }
 }
 
 dependencies {
   // noinspection GradleDynamicVersion
   implementation fileTree(dir: "libs", include: ["*.jar"])
-  // implementation files('libs/device-risk-sdk-debug.aar')
-  api 'com.github.socure-inc:device-risk-android-sdk:3.0.0'
-  api 'androidx.appcompat:appcompat:1.2.0'
-  api "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
-  api "androidx.lifecycle:lifecycle-extensions:2.2.0"
-  kapt "androidx.lifecycle:lifecycle-compiler:2.2.0"
+  api 'com.github.socure-inc:device-risk-android-sdk:4.0.0'
 
   api 'com.google.android.gms:play-services-location:17.1.0'
-  api 'androidx.ads:ads-identifier:1.0.0-alpha04'
 
   api 'com.karumi:dexter:6.2.1'
-  api 'com.google.code.gson:gson:2.8.6'
+  api 'com.google.code.gson:gson:2.10.1'
 
     // Network
-  api 'com.squareup.retrofit2:retrofit:2.6.2'
-  api 'com.squareup.retrofit2:converter-gson:2.6.2'
-  api 'com.squareup.okhttp3:logging-interceptor:4.2.2'
-  api 'androidx.legacy:legacy-support-v4:1.0.0'
 
   api 'com.facebook.react:react-native:+'
   implementation 'com.facebook.infer.annotation:infer-annotation:0.11.2'
   implementation 'javax.inject:javax.inject:1'
-  // implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
