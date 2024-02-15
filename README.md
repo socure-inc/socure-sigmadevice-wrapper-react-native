@@ -20,7 +20,7 @@ Add the following dependency to `package.json`:
 ```
 "dependencies":{
 	....,
-	"react-native-device-risk": "4.0.0"
+	"react-native-device-risk": "4.0.1"
 }
 ```
 
