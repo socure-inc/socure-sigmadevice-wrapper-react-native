@@ -18,10 +18,7 @@ Please follow the instructions below to add this wrapper library to your project
 Add the following dependency to `package.json`:
 
 ```
-"dependencies":{
-	....,
-	"react-native-device-risk": "4.0.1"
-}
+npm install --save react-native-device-risk
 ```
 
 ### Android
