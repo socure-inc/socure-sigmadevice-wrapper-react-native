@@ -6,7 +6,7 @@ This guide covers the integration within React, as well as React Native implemen
 
 **Minimum Requirements**
 iOS 13 and above
-Android SDK version 33 and above
+Android SDK version 34 and above
 
 ## Introduction
 Please read the documentation on either the [Android](https://github.com/socure-inc/socure-sigmadevice-sdk-android) or [iOS](https://github.com/socure-inc/socure-sigmadevice-sdk-ios) native library variants to understand how the Device Risk SDK works.
@@ -20,12 +20,12 @@ Add the following dependency to `package.json`:
 ```
 "dependencies":{
 	....,
-	"react-native-device-risk": "https://github.com/socure-inc/socure-sigmadevice-wrapper-react-native#1.2.1"
+	"react-native-device-risk": "4.0.0"
 }
 ```
 
 ### Android
-**Step 1: Open the module level build.gradle for the main project module and inside of the defaultConfig section, set the minSdkVersion to 33**
+**Step 1: Open the module level build.gradle for the main project module and inside of the defaultConfig section, set the minSdkVersion to 34**
 
 **Step 2: Synchronize your gradle projects**
 <br>The Android side of the Bridge should be ready to run.
@@ -73,7 +73,7 @@ buildscript {
 
            }
 ```
-> **Note:** Socure has tested the build with plugin version 1.7.0.
+> **Note:** Socure has tested the build with plugin version 1.7.10.
 
 **Step 3:**
 
@@ -88,7 +88,7 @@ dependencies {
 }
 ```
 
-> **Note:** Socure has tested the build with plugin version 1.7.0.
+> **Note:** Socure has tested the build with plugin version 1.7.10.
 
 Build and run:
 

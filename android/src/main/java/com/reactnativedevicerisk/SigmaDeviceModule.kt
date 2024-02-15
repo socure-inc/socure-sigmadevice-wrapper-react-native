@@ -28,7 +28,7 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun initializeSDK(sdkKey: String, sigmaDeviceOptions: ReadableMap, promise: Promise) {
+  fun initializeSDK(sdkKey: String, sigmaDeviceOptions: ReadableMap?, promise: Promise) {
     val activity = currentActivity
     sendDataPromise = promise
     if (activity == null) {
@@ -36,14 +36,10 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
       return
     }
 
-    val omitLocationData =
-      if (sigmaDeviceOptions.hasKey("omitLocationData")) sigmaDeviceOptions.getBoolean("omitLocationData") else false
-    val advertisingID = sigmaDeviceOptions.getString("advertisingID")
-    val apiOptions = SigmaDeviceOptions(omitLocationData, advertisingID)
     SigmaDevice.initializeSDK(
       activity as AppCompatActivity,
       sdkKey,
-      apiOptions,
+      getSigmaDeviceOptions(sigmaDeviceOptions),
       object : SigmaDeviceCallback {
         override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
           sendDataPromise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
@@ -58,9 +54,21 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
       })
   }
 
+  private fun getSigmaDeviceOptions(sigmaDeviceOptions: ReadableMap?): SigmaDeviceOptions {
+    var apiOptions = SigmaDeviceOptions(false, null)
+    if (sigmaDeviceOptions != null) {
+      val omitLocationData =
+        if (sigmaDeviceOptions.hasKey("omitLocationData")) sigmaDeviceOptions.getBoolean("omitLocationData") else false
+      val advertisingID =
+        if(sigmaDeviceOptions.hasKey("advertisingID")) sigmaDeviceOptions.getString("advertisingID") else null
+      apiOptions = SigmaDeviceOptions(omitLocationData, advertisingID)
+    }
+    return apiOptions
+  }
+
   @ReactMethod
-  fun processDevice(sigmaDeviceContext: ReadableMap, promise: Promise) {
-    val context = getContextFromString(sigmaDeviceContext.getString("context") ?: "")
+  fun processDevice(sigmaDeviceContext: String, promise: Promise) {
+    val context = getContextFromString(sigmaDeviceContext)
 
     sendDataPromise = promise
     val handler = Handler(reactApplicationContext.mainLooper)
