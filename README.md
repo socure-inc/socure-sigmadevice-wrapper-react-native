@@ -70,7 +70,7 @@ buildscript {
 
            }
 ```
-> **Note:** Socure has tested the build with plugin version 1.7.10.
+> **Note:** Socure has tested the build with plugin version 1.8.10.
 
 **Step 3:**
 
@@ -85,7 +85,7 @@ dependencies {
 }
 ```
 
-> **Note:** Socure has tested the build with plugin version 1.7.10.
+> **Note:** Socure has tested the build with plugin version 1.8.10.
 
 Build and run:
 

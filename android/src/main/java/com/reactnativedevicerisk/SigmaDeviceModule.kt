@@ -23,8 +23,10 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
   private var sendDataPromise: Promise? = null
 
+  private val handler = Handler(reactContext.mainLooper)
+
   override fun getName(): String {
-    return "RnSigmaDevice"
+    return RN_SIGMA_DEVICE
   }
 
   @ReactMethod
@@ -35,33 +37,56 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
       sendDataPromise?.reject(Throwable(message = "Aborting since app activity object is null"))
       return
     }
+    handler.post {
+      SigmaDevice.initializeSDK(
+        activity as AppCompatActivity,
+        sdkKey,
+        getSigmaDeviceOptions(sigmaDeviceOptions),
+        object : SigmaDeviceCallback {
+          override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
+            sendDataPromise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
+          }
 
-    SigmaDevice.initializeSDK(
-      activity as AppCompatActivity,
-      sdkKey,
-      getSigmaDeviceOptions(sigmaDeviceOptions),
-      object : SigmaDeviceCallback {
+          override fun onSessionCreated(sessionToken: String) {
+            sendSessionToken(sessionToken)
+          }
+        })
+    }
+  }
+
+  @ReactMethod
+  fun getSessionToken(promise: Promise) {
+    sendDataPromise = promise
+    handler.post {
+      SigmaDevice.getSessionToken(object : SessionTokenCallback {
+        override fun onComplete(sessionToken: String) {
+          sendSessionToken(sessionToken)
+        }
+
         override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
           sendDataPromise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
         }
 
-        override fun onSessionCreated(sessionToken: String) {
-          val response = Arguments.createMap()
-          response.putString("sessionToken", sessionToken)
-          sendDataPromise?.resolve(response)
-        }
-
       })
+    }
+  }
+
+  private fun sendSessionToken(sessionToken: String) {
+    val response = Arguments.createMap()
+    response.putString("sessionToken", sessionToken)
+    sendDataPromise?.resolve(response)
   }
 
   private fun getSigmaDeviceOptions(sigmaDeviceOptions: ReadableMap?): SigmaDeviceOptions {
-    var apiOptions = SigmaDeviceOptions(false, null)
+    var apiOptions = SigmaDeviceOptions()
     if (sigmaDeviceOptions != null) {
       val omitLocationData =
         if (sigmaDeviceOptions.hasKey("omitLocationData")) sigmaDeviceOptions.getBoolean("omitLocationData") else false
       val advertisingID =
-        if(sigmaDeviceOptions.hasKey("advertisingID")) sigmaDeviceOptions.getString("advertisingID") else null
-      apiOptions = SigmaDeviceOptions(omitLocationData, advertisingID)
+        if (sigmaDeviceOptions.hasKey("advertisingID")) sigmaDeviceOptions.getString("advertisingID") else null
+      val useSocureGov =
+        if (sigmaDeviceOptions.hasKey("useSocureGov")) sigmaDeviceOptions.getBoolean("useSocureGov") else false
+      apiOptions = SigmaDeviceOptions(omitLocationData, advertisingID, useSocureGov)
     }
     return apiOptions
   }
@@ -71,13 +96,10 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
     val context = getContextFromString(sigmaDeviceContext)
 
     sendDataPromise = promise
-    val handler = Handler(reactApplicationContext.mainLooper)
     handler.post {
       SigmaDevice.processDevice(context, object : SessionTokenCallback {
         override fun onComplete(sessionToken: String) {
-          val response = Arguments.createMap()
-          response.putString("sessionToken", sessionToken)
-          sendDataPromise?.resolve(response)
+          sendSessionToken(sessionToken)
         }
 
         override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
@@ -100,4 +122,8 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
       TRANSACTION -> SigmaDeviceContext.Transaction()
       else -> SigmaDeviceContext.Other(UNKNOWN)
     }
+
+  companion object {
+    private const val RN_SIGMA_DEVICE = "RnSigmaDevice"
+  }
 }
