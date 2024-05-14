@@ -1,0 +1,12 @@
+include:
+  - project: plt/gitlab-pipeline-templates
+    file: jobs/publish/publish-node-mend.gitlab-ci.yml
+
+stages:
+  - scan
+
+mend-scan-fips:
+  extends: .mend-nodejs
+  stage: scan
+  variables:
+    MEND_PRODUCT_NAME: "socure-external"
