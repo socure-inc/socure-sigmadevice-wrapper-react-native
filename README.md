@@ -18,7 +18,7 @@ Please follow the instructions below to add this wrapper library to your project
 Add the following dependency to `package.json`:
 
 ```
-npm install --save react-native-device-risk
+npm install --save @socure-inc/react-native-device-risk
 ```
 
 ### Android

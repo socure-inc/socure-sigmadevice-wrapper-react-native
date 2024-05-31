@@ -18,9 +18,11 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
             let omitLocationData = options["omitLocationData"] as? Bool
             let advertisingID = options["advertisingID"] as? String
             let useSocureGov = options["useSocureGov"] as? Bool
+            let configBaseUrl = options["configBaseUrl"] as? String
             sdkOptions = SigmaDeviceOptions(omitLocationData: omitLocationData ?? false,
                                             advertisingID: advertisingID,
-                                            useSocureGov: useSocureGov ?? false)
+                                            useSocureGov: useSocureGov ?? false,
+                                            configBaseUrl: configBaseUrl)
         }
 
         SigmaDevice.initializeSDK(SDKKey, options: sdkOptions) { sessionToken, error in

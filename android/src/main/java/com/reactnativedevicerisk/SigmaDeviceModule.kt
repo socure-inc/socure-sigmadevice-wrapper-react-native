@@ -86,7 +86,9 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
         if (sigmaDeviceOptions.hasKey("advertisingID")) sigmaDeviceOptions.getString("advertisingID") else null
       val useSocureGov =
         if (sigmaDeviceOptions.hasKey("useSocureGov")) sigmaDeviceOptions.getBoolean("useSocureGov") else false
-      apiOptions = SigmaDeviceOptions(omitLocationData, advertisingID, useSocureGov)
+      val configBaseUrl =
+        if (sigmaDeviceOptions.hasKey("configBaseUrl")) sigmaDeviceOptions.getString("configBaseUrl") else null
+      apiOptions = SigmaDeviceOptions(omitLocationData, advertisingID, useSocureGov, configBaseUrl)
     }
     return apiOptions
   }
