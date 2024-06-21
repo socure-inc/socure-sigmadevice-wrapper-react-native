@@ -71,7 +71,7 @@ repositories {
 dependencies {
   // noinspection GradleDynamicVersion
   implementation fileTree(dir: "libs", include: ["*.jar"])
-  implementation 'com.socure.devicerisk.sdk:socure-devicerisk:4.2.1'
+  implementation 'com.socure.devicerisk.sdk:socure-devicerisk:4.2.2'
 
   api 'com.google.android.gms:play-services-location:17.1.0'
 
