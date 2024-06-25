@@ -2,11 +2,57 @@ include:
   - project: plt/gitlab-pipeline-templates
     file: jobs/publish/publish-node-mend.gitlab-ci.yml
 
+image: registry.us-east-1.build.socure.link/platform/gitlab-runner-nodejs:18.7
 stages:
+  - build
+  - lint
   - scan
+  - deploy
+
+build:
+  stage: build
+  script:
+    - "yarn install"
+    - "yarn"
+  artifacts:
+    untracked: false
+    when: on_success
+    paths:
+      - $SDK_DIR/dist
 
 mend-scan-fips:
   extends: .mend-nodejs
   stage: scan
+  dependencies:
+    - build
   variables:
     MEND_PRODUCT_NAME: "socure-external"
+
+lint:
+  stage: lint
+  dependencies:
+    - build
+  script:
+    - "yarn install"
+    - "yarn lint"
+
+# Publishes the wrapper to NPM
+#
+# Uses the version set in the package.json to publish to NPM.
+# This should more or less enforce a good practice of tagging
+# the repo for released versions
+#
+# This process is only run when the repo is tagged.
+deploy-npm:
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - |
+      echo "//registry.npmjs.org/:_authToken=$NPM_PUBLISH_TOKEN" > .npmrc
+
+      npm publish --access public
+      
+  only:
+    refs:
+      - tags
