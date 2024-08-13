@@ -14,11 +14,6 @@ build:
   script:
     - "yarn install"
     - "yarn"
-  artifacts:
-    untracked: false
-    when: on_success
-    paths:
-      - $SDK_DIR/dist
 
 mend-scan-fips:
   extends: .mend-nodejs
@@ -48,6 +43,8 @@ deploy-npm:
   dependencies:
     - build
   script:
+    - "yarn install"
+    - "yarn"
     - |
       echo "//registry.npmjs.org/:_authToken=$NPM_PUBLISH_TOKEN" > .npmrc
 
