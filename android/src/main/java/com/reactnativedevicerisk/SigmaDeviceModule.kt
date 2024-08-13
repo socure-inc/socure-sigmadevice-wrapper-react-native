@@ -21,7 +21,6 @@ import com.socure.idplus.device.error.SigmaDeviceError
 
 class SigmaDeviceModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
-  private var sendDataPromise: Promise? = null
 
   private val handler = Handler(reactContext.mainLooper)
 
@@ -32,9 +31,8 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun initializeSDK(sdkKey: String, sigmaDeviceOptions: ReadableMap?, promise: Promise) {
     val activity = currentActivity
-    sendDataPromise = promise
     if (activity == null) {
-      sendDataPromise?.reject(Throwable(message = "Aborting since app activity object is null"))
+      promise?.reject(Throwable(message = "Aborting since app activity object is null"))
       return
     }
     handler.post {
@@ -44,11 +42,11 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
         getSigmaDeviceOptions(sigmaDeviceOptions),
         object : SigmaDeviceCallback {
           override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
-            sendDataPromise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
+            promise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
           }
 
           override fun onSessionCreated(sessionToken: String) {
-            sendSessionToken(sessionToken)
+            sendSessionToken(sessionToken, promise)
           }
         })
     }
@@ -56,25 +54,24 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun getSessionToken(promise: Promise) {
-    sendDataPromise = promise
     handler.post {
       SigmaDevice.getSessionToken(object : SessionTokenCallback {
         override fun onComplete(sessionToken: String) {
-          sendSessionToken(sessionToken)
+          sendSessionToken(sessionToken, promise)
         }
 
         override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
-          sendDataPromise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
+          promise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
         }
 
       })
     }
   }
 
-  private fun sendSessionToken(sessionToken: String) {
+  private fun sendSessionToken(sessionToken: String, promise: Promise?) {
     val response = Arguments.createMap()
     response.putString("sessionToken", sessionToken)
-    sendDataPromise?.resolve(response)
+    promise?.resolve(response)
   }
 
   private fun getSigmaDeviceOptions(sigmaDeviceOptions: ReadableMap?): SigmaDeviceOptions {
@@ -97,15 +94,14 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
   fun processDevice(sigmaDeviceContext: String, promise: Promise) {
     val context = getContextFromString(sigmaDeviceContext)
 
-    sendDataPromise = promise
     handler.post {
       SigmaDevice.processDevice(context, object : SessionTokenCallback {
         override fun onComplete(sessionToken: String) {
-          sendSessionToken(sessionToken)
+          sendSessionToken(sessionToken, promise)
         }
 
         override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
-          sendDataPromise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
+          promise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
         }
 
       })
