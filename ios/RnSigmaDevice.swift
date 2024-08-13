@@ -25,12 +25,20 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
                                             configBaseUrl: configBaseUrl)
         }
 
+        var isFirstTime = true
+
         SigmaDevice.initializeSDK(SDKKey, options: sdkOptions) { sessionToken, error in
-            RnSigmaDevice.processResponse(methodName: "initializeSDK",
-                                          sessionToken: sessionToken,
-                                          error: error,
-                                          resolver: resolve,
-                                          rejecter: reject)
+            defer {
+                isFirstTime = false
+            }
+
+            if isFirstTime {
+                RnSigmaDevice.processResponse(methodName: "initializeSDK",
+                                              sessionToken: sessionToken,
+                                              error: error,
+                                              resolver: resolve,
+                                              rejecter: reject)
+            }
         }
         NotificationCenter.default.post(Notification(name: Notification.Name("SOCURE_REACT_NATIVE_ENV")))
     }
@@ -79,8 +87,9 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
                 errorMsg = "An error occurred while fetching the data"
             case .dataUploadError(let code, let msg):
                 errorMsg = "\(code ?? ""): \(msg ?? "")"
-            case .networkConnectionError(let nsUrlError):
-                errorMsg = nsUrlError.localizedDescription
+            case .networkConnectionError(let networkConnectionError):
+                let nsError = networkConnectionError as NSError
+                errorMsg = "\(nsError.domain): \(nsError.code): \(nsError.localizedDescription)"
             case .unknownError:
                 fallthrough
             default:
