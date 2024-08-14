@@ -35,6 +35,8 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
       promise?.reject(Throwable(message = "Aborting since app activity object is null"))
       return
     }
+
+    var isFirstTime = true
     handler.post {
       SigmaDevice.initializeSDK(
         activity as AppCompatActivity,
@@ -46,6 +48,11 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
           }
 
           override fun onSessionCreated(sessionToken: String) {
+            if (!isFirstTime) {
+              return
+            }
+
+            isFirstTime = false
             sendSessionToken(sessionToken, promise)
           }
         })
