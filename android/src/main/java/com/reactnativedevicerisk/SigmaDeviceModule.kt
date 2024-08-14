@@ -44,7 +44,12 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
         getSigmaDeviceOptions(sigmaDeviceOptions),
         object : SigmaDeviceCallback {
           override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
-            promise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
+            if (!isFirstTime) {
+              return
+            }
+
+            isFirstTime = false
+            promise.reject(Throwable(message = "${errorType.name}: $errorMessage"))
           }
 
           override fun onSessionCreated(sessionToken: String) {
@@ -68,17 +73,17 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
         }
 
         override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
-          promise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
+          promise.reject(Throwable(message = "${errorType.name}: $errorMessage"))
         }
 
       })
     }
   }
 
-  private fun sendSessionToken(sessionToken: String, promise: Promise?) {
+  private fun sendSessionToken(sessionToken: String, promise: Promise) {
     val response = Arguments.createMap()
     response.putString("sessionToken", sessionToken)
-    promise?.resolve(response)
+    promise.resolve(response)
   }
 
   private fun getSigmaDeviceOptions(sigmaDeviceOptions: ReadableMap?): SigmaDeviceOptions {
@@ -108,7 +113,7 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
         }
 
         override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
-          promise?.reject(Throwable(message = "${errorType.name}: $errorMessage"))
+          promise.reject(Throwable(message = "${errorType.name}: $errorMessage"))
         }
 
       })
