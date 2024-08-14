@@ -32,7 +32,7 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
   fun initializeSDK(sdkKey: String, sigmaDeviceOptions: ReadableMap?, promise: Promise) {
     val activity = currentActivity
     if (activity == null) {
-      promise?.reject(Throwable(message = "Aborting since app activity object is null"))
+      promise.reject(Throwable(message = "Aborting since app activity object is null"))
       return
     }
 
