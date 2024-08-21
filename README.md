@@ -24,6 +24,10 @@ npm install --save @socure-inc/react-native-device-risk
 ### Android
 **Step 1: Open the module level build.gradle for the main project module and inside of the defaultConfig section, set the minSdkVersion to 34**
 
+- Min SDK - 21
+- Kotlin versions - 1.8.0 and later
+- Gradle - 7.4.2 and later
+
 **Step 2: Synchronize your gradle projects**
 <br>The Android side of the Bridge should be ready to run.
 
@@ -47,9 +51,7 @@ allprojects {
     repositories {
         …….
 
-        maven {
-            url “https://jitpack.io”
-        }
+        maven {url "https://sdk.socure.com/"}
     }
 }
 ```
