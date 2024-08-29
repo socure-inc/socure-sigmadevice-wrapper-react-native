@@ -8,8 +8,8 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
                        options: [String : Any]?,
                        resolver resolve: @escaping RCTPromiseResolveBlock,
                        rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
-        NotificationCenter.default.post(Notification(name: Notification.Name("SOCURE_APPLICATION_TYPE_NOTIFICATION",
-                                                     userInfo: ["SOCURE_APPLICATION_TYPE": "reactNative"])))
+        NotificationCenter.default.post(Notification(name: Notification.Name("SOCURE_APPLICATION_TYPE_NOTIFICATION"),
+                                                     userInfo: ["SOCURE_APPLICATION_TYPE": "reactNative"]))
 
         guard let SDKKey = SDKKey else {
             reject("initializeSDK_error", "Missing SDK Key", nil)
