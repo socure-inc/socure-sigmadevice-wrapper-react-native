@@ -12,7 +12,7 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
                                                      userInfo: ["SOCURE_APPLICATION_TYPE": "reactNative"]))
 
         guard let SDKKey = SDKKey else {
-            reject("initializeSDK_error", "Missing SDK Key", nil)
+            reject("initializeSDK_error", "SDKKey is required", nil)
             return
         }
 
@@ -22,26 +22,20 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
             let advertisingID = options["advertisingID"] as? String
             let useSocureGov = options["useSocureGov"] as? Bool
             let configBaseUrl = options["configBaseUrl"] as? String
+            let customerSessionId = options["customerSessionId"] as? String
             sdkOptions = SigmaDeviceOptions(omitLocationData: omitLocationData ?? false,
                                             advertisingID: advertisingID,
                                             useSocureGov: useSocureGov ?? false,
-                                            configBaseUrl: configBaseUrl)
+                                            configBaseUrl: configBaseUrl,
+                                            customerSessionId: customerSessionId)
         }
 
-        var isFirstTime = true
-
         SigmaDevice.initializeSDK(SDKKey, options: sdkOptions) { sessionToken, error in
-            defer {
-                isFirstTime = false
-            }
-
-            if isFirstTime {
-                RnSigmaDevice.processResponse(methodName: "initializeSDK",
-                                              sessionToken: sessionToken,
-                                              error: error,
-                                              resolver: resolve,
-                                              rejecter: reject)
-            }
+            RnSigmaDevice.processResponse(methodName: "initializeSDK",
+                                          sessionToken: sessionToken,
+                                          error: error,
+                                          resolver: resolve,
+                                          rejecter: reject)
         }
     }
 
@@ -77,26 +71,91 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
         }
     }
 
-    static func processResponse(methodName: String,
-                         sessionToken: String?,
-                         error: SigmaDeviceError?,
-                         resolver resolve: @escaping RCTPromiseResolveBlock,
-                         rejecter reject: @escaping RCTPromiseRejectBlock) {
-        if let error = error {
-            let errorMsg: String
-            switch error {
-            case .dataFetchError:
-                errorMsg = "An error occurred while fetching the data"
-            case .dataUploadError(let code, let msg):
-                errorMsg = "\(code ?? ""): \(msg ?? "")"
-            case .networkConnectionError(let networkConnectionError):
-                let nsError = networkConnectionError as NSError
-                errorMsg = "\(nsError.domain): \(nsError.code): \(nsError.localizedDescription)"
-            case .unknownError:
-                fallthrough
-            default:
-                errorMsg = "Unknown error occurred"
+    @objc(pauseDataCollection:rejecter:)
+    func pauseDataCollection(resolver resolve: @escaping RCTPromiseResolveBlock,
+                             rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+        Task {
+            do {
+                try await SigmaDevice.pauseDataCollection()
+                resolve(nil)
+            } catch {
+                let errorMsg = RnSigmaDevice.handleSigmaDeviceError(error as? SigmaDeviceError ?? .unknownError)
+                reject("pauseDataCollection_error", errorMsg, nil)
             }
+        }
+    }
+
+    @objc(resumeDataCollection:rejecter:)
+    func resumeDataCollection(resolver resolve: @escaping RCTPromiseResolveBlock,
+                              rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+        Task {
+            do {
+                try await SigmaDevice.resumeDataCollection()
+                resolve(nil)
+            } catch {
+                let errorMsg = RnSigmaDevice.handleSigmaDeviceError(error as? SigmaDeviceError ?? .unknownError)
+                reject("resumeDataCollection_error", errorMsg, nil)
+            }
+        }
+    }
+
+    @objc(addCustomerSessionId:resolver:rejecter:)
+    func addCustomerSessionId(customerSessionId: String,
+                              resolver resolve: @escaping RCTPromiseResolveBlock,
+                              rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+        Task {
+            do {
+                try await SigmaDevice.addCustomerSessionId(customerSessionId)
+                resolve(nil)
+            } catch {
+                let errorMsg = RnSigmaDevice.handleSigmaDeviceError(error as? SigmaDeviceError ?? .unknownError)
+                reject("addCustomerSessionId_error", errorMsg, nil)
+            }
+        }
+    }
+
+    @objc(createNewSession:resolver:rejecter:)
+    func createNewSession(customerSessionId: String?,
+                          resolver resolve: @escaping RCTPromiseResolveBlock,
+                          rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+        Task {
+            do {
+                let sessionToken = try await SigmaDevice.createNewSession(customerSessionId: customerSessionId)
+                resolve(["sessionToken": sessionToken])
+            } catch {
+                let errorMsg = RnSigmaDevice.handleSigmaDeviceError(error as? SigmaDeviceError ?? .unknownError)
+                reject("createNewSession_error", errorMsg, nil)
+            }
+        }
+    }
+
+    static func handleSigmaDeviceError(_ error: SigmaDeviceError) -> String {
+        switch error {
+        case .sdkNotInitializedError:
+            return "SDK not initialized"
+        case .sdkPausedError:
+            return "SDK is currently paused"
+        case .dataFetchError:
+            return "An error occurred while fetching the data"
+        case .dataUploadError(let code, let msg):
+            return "\(code ?? ""): \(msg ?? "")"
+        case .networkConnectionError(let networkConnectionError):
+            let nsError = networkConnectionError as NSError
+            return "\(nsError.domain): \(nsError.code): \(nsError.localizedDescription)"
+        case .unknownError:
+            fallthrough
+        default:
+            return "Unknown error occurred"
+        }
+    }
+
+    static func processResponse(methodName: String,
+                                sessionToken: String?,
+                                error: SigmaDeviceError?,
+                                resolver resolve: @escaping RCTPromiseResolveBlock,
+                                rejecter reject: @escaping RCTPromiseRejectBlock) {
+        if let error = error {
+            let errorMsg = RnSigmaDevice.handleSigmaDeviceError(error)
             reject("\(methodName)_error", errorMsg, nil)
             return
         }
@@ -120,23 +179,25 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
     }
 
     private func contextFromString(_ contextString: String) -> SigmaDeviceContext {
-        if contextString == "default" {
+        switch contextString {
+        case "default":
             return .default
-        } else if contextString == "homepage" {
+        case "homepage":
             return .homepage
-        } else if contextString == "signup" {
+        case "signup":
             return .signup
-        } else if contextString == "login" {
+        case "login":
             return .login
-        } else if contextString == "profile" {
+        case "profile":
             return .profile
-        } else if contextString == "password" {
+        case "password":
             return .password
-        } else if contextString == "transaction" {
+        case "transaction":
             return .transaction
-        } else if contextString == "checkout" {
+        case "checkout":
             return .checkout
+        default:
+            return .other(contextString)
         }
-        return .other(contextString)
     }
 }

@@ -30,7 +30,7 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun initializeSDK(sdkKey: String, sigmaDeviceOptions: ReadableMap?, promise: Promise) {
-    val activity = currentActivity
+    val activity = reactApplicationContext.currentActivity
     if (activity == null) {
       promise.reject(Throwable(message = "Aborting since app activity object is null"))
       return
@@ -76,6 +76,56 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
           promise.reject(Throwable(message = "${errorType.name}: $errorMessage"))
         }
 
+      })
+    }
+  }
+
+  @ReactMethod
+  fun pauseDataCollection() {
+    handler.post {
+      SigmaDevice.pauseDataCollection()
+    }
+  }
+
+  @ReactMethod
+  fun resumeDataCollection() {
+    handler.post {
+      SigmaDevice.resumeDataCollection()
+    }
+  }
+
+  @ReactMethod
+  fun addCustomerSessionId(
+    customerSessionId: String,
+    promise: Promise
+  ) {
+    handler.post {
+      SigmaDevice.addCustomerSessionId(customerSessionId, object : SessionTokenCallback {
+        override fun onComplete(sessionToken: String) {
+          sendSessionToken(sessionToken, promise)
+        }
+
+        override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
+          promise.reject(Throwable(message = "${errorType.name}: $errorMessage"))
+        }
+      })
+    }
+  }
+
+  @ReactMethod
+  fun createNewSession(
+    customerSessionId: String,
+    promise: Promise
+  ) {
+    handler.post {
+      SigmaDevice.createNewSession(customerSessionId, object : SessionTokenCallback {
+        override fun onComplete(sessionToken: String) {
+          sendSessionToken(sessionToken, promise)
+        }
+
+        override fun onError(errorType: SigmaDeviceError, errorMessage: String?) {
+          promise.reject(Throwable(message = "${errorType.name}: $errorMessage"))
+        }
       })
     }
   }
