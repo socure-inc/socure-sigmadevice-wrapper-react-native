@@ -22,6 +22,7 @@ export interface SigmaDeviceOptions {
   omitLocationData?: boolean;
   useSocureGov?: boolean;
   configBaseUrl?: string;
+  customerSessionId?: string;
 }
 
 export class RnSigmaDevice {
@@ -40,5 +41,25 @@ export class RnSigmaDevice {
     sigmaDeviceContext: SigmaDeviceContext | string
   ): Promise<SessionTokenResponse> {
     return RnSigmaDeviceBase.processDevice(sigmaDeviceContext);
+  }
+
+  public static async pauseDataCollection(): Promise<void> {
+    return RnSigmaDeviceBase.pauseDataCollection();
+  }
+
+  public static async resumeDataCollection(): Promise<void> {
+    return RnSigmaDeviceBase.resumeDataCollection();
+  }
+
+  public static async addCustomerSessionId(
+    customerSessionId: string
+  ): Promise<void> {
+    return RnSigmaDeviceBase.addCustomerSessionId(customerSessionId);
+  }
+
+  public static async createNewSession(
+    customerSessionId?: string
+  ): Promise<SessionTokenResponse> {
+    return RnSigmaDeviceBase.createNewSession(customerSessionId);
   }
 }
