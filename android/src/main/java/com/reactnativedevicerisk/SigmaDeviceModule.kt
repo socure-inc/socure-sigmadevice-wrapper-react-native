@@ -16,8 +16,10 @@ import com.socure.idplus.device.SigmaDevice
 import com.socure.idplus.device.SigmaDeviceOptions
 import com.socure.idplus.device.callback.SessionTokenCallback
 import com.socure.idplus.device.callback.SigmaDeviceCallback
+import com.socure.idplus.device.callback.SilentNetworkAuthCallback
 import com.socure.idplus.device.context.SigmaDeviceContext
 import com.socure.idplus.device.error.SigmaDeviceError
+import com.socure.idplus.device.error.SilentNetworkAuthError
 
 class SigmaDeviceModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
@@ -127,6 +129,32 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
           promise.reject(Throwable(message = "${errorType.name}: $errorMessage"))
         }
       })
+    }
+  }
+
+  @ReactMethod
+  fun performSilentNetworkAuth(mobileNumber: String, promise: Promise) {
+    handler.post {
+      SigmaDevice.performSilentNetworkAuth(mobileNumber, object : SilentNetworkAuthCallback {
+        override fun onSuccess() {
+          promise.resolve(null)
+        }
+
+        override fun onError(errorType: SilentNetworkAuthError, errorMessage: String?) {
+          val errorMsg = handleSilentNetworkAuthError(errorType)
+          promise.reject(Throwable(message = errorMsg))
+        }
+      })
+    }
+  }
+
+  private fun handleSilentNetworkAuthError(error: SilentNetworkAuthError): String {
+    return when (error) {
+      SilentNetworkAuthError.SdkNotInitializedError -> "SDK not initialized"
+      SilentNetworkAuthError.InvalidMobileNumberError -> "The provided mobile number is invalid."
+      SilentNetworkAuthError.UnAuthorizedError -> "The account associated with the `SdkKey` is not authorized to perform silent network authentication."
+      SilentNetworkAuthError.ContextFetchError -> "Unable to get Android context for silent network authentication."
+      SilentNetworkAuthError.UnknownError -> "An unknown error occurred during the silent network authentication process."
     }
   }
 
