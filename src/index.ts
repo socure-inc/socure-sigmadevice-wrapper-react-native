@@ -25,6 +25,11 @@ export interface SigmaDeviceOptions {
   customerSessionId?: string;
 }
 
+export interface SigmaDeviceError {
+  code: string;
+  message: string;
+}
+
 export class RnSigmaDevice {
   public static async initializeSDK(
     sdkKey: string,
@@ -61,5 +66,11 @@ export class RnSigmaDevice {
     customerSessionId?: string
   ): Promise<SessionTokenResponse> {
     return RnSigmaDeviceBase.createNewSession(customerSessionId);
+  }
+
+  public static async performSilentNetworkAuth(
+    mobileNumber: string
+  ): Promise<void> {
+    return RnSigmaDeviceBase.performSilentNetworkAuth(mobileNumber);
   }
 }

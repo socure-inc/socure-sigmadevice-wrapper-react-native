@@ -129,6 +129,28 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
         }
     }
 
+    @objc(performSilentNetworkAuth:resolver:rejecter:)
+    func performSilentNetworkAuth(mobileNumber: String,
+                                  resolver resolve: @escaping RCTPromiseResolveBlock,
+                                  rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+        Task {
+            do {
+                try await SigmaDevice.performSilentNetworkAuth(mobileNumber: mobileNumber)
+                resolve(nil)
+            } catch {
+                if let sigmaDeviceError = error as? SigmaDeviceError {
+                    let errorMsg = RnSigmaDevice.handleSigmaDeviceError(sigmaDeviceError)
+                    reject("performSilentNetworkAuth_error", errorMsg, nil)
+                } else if let silentNetworkAuthError = error as? SilentNetworkAuthError {
+                    let errorMsg = RnSigmaDevice.handleSilentNetworkAuthError(silentNetworkAuthError)
+                    reject("performSilentNetworkAuth_error", errorMsg, nil)
+                } else {
+                    reject("performSilentNetworkAuth_error", "An unknown error occurred during silent network authentication", nil)
+                }
+            }
+        }
+    }
+
     static func handleSigmaDeviceError(_ error: SigmaDeviceError) -> String {
         switch error {
         case .sdkNotInitializedError:
@@ -146,6 +168,19 @@ class RnSigmaDevice: NSObject, RCTBridgeModule {
             fallthrough
         default:
             return "Unknown error occurred"
+        }
+    }
+
+    static func handleSilentNetworkAuthError(_ error: SilentNetworkAuthError) -> String {
+        switch error {
+        case .invalidMobileNumberError:
+            return "The provided mobile number is invalid."
+        case .unauthorizedError:
+            return "The account associated with the `SdkKey` is not authorized to perform silent network authentication."
+        case .unknownError:
+            fallthrough
+        default:
+            return "An unknown error occurred during the silent network authentication process."
         }
     }
 

@@ -28,4 +28,8 @@ RCT_EXTERN_METHOD(createNewSession:(NSString *)customerSessionId
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(performSilentNetworkAuth:(NSString *)mobileNumber
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 @end
