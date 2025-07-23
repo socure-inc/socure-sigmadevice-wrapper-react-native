@@ -116,7 +116,7 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun createNewSession(
-    customerSessionId: String,
+    customerSessionId: String? = null,
     promise: Promise
   ) {
     handler.post {
@@ -155,6 +155,7 @@ class SigmaDeviceModule(reactContext: ReactApplicationContext) :
       SilentNetworkAuthError.UnAuthorizedError -> "The account associated with the `SdkKey` is not authorized to perform silent network authentication."
       SilentNetworkAuthError.ContextFetchError -> "Unable to get Android context for silent network authentication."
       SilentNetworkAuthError.UnknownError -> "An unknown error occurred during the silent network authentication process."
+      SilentNetworkAuthError.MissingPermissionsError -> "Missing permissions."
     }
   }
 
