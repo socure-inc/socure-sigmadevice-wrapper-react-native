@@ -17,6 +17,6 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
   s.dependency "React-Core"
-  s.dependency "SocureDeviceRisk", "~> 4.6.1"
+  s.dependency "SocureDeviceRisk", "~> 4.6.2"
 
 end
