@@ -11,6 +11,10 @@ Android SDK version 34 and above
 ## Introduction
 Please read the documentation on either the [Android](https://github.com/socure-inc/socure-sigmadevice-sdk-android) or [iOS](https://github.com/socure-inc/socure-sigmadevice-sdk-ios) native library variants to understand how the Device Risk SDK works.
 
+### Latest Release
+
+[![npm version](https://img.shields.io/npm/v/%40socure-inc/react-native-device-risk)](https://www.npmjs.com/package/@socure-inc/react-native-device-risk) 
+
 ## Installation
 
 Please follow the instructions below to add this wrapper library to your project. Alternatively, you can use this [sample app](https://github.com/socure-inc/socure-sigmadevice-demo-app-react-native) as a starting point.
