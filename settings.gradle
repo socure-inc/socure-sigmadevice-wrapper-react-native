@@ -1,2 +1,2 @@
-include ':app', ':android'
+include ':android'
 rootProject.name = "Socure-DeviceRisk-React-sdk"

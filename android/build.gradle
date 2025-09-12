@@ -8,8 +8,7 @@ buildscript {
 
   repositories {
     google()
-    jcenter()
-    maven {url "https://sdk.socure.com/"}
+    mavenCentral()
   }
 
   dependencies {
@@ -29,7 +28,7 @@ def getExtOrIntegerDefault(name) {
 android {
   namespace "com.reactnativedevicerisk"
   compileSdkVersion 34
-  buildToolsVersion "30.0.3"
+  buildToolsVersion "33.0.1"
 
   defaultConfig {
     minSdkVersion 21
@@ -62,19 +61,22 @@ android {
 
 repositories {
   mavenCentral()
-  jcenter()
   google()
 }
 
 dependencies {
   // noinspection GradleDynamicVersion
   implementation fileTree(dir: "libs", include: ["*.jar"])
-  implementation 'com.socure.devicerisk.sdk:socure-devicerisk:4.6.1'
+  def device_risk_version = "4.6.2"
+  implementation "com.socure.devicerisk.sdk:socure-devicerisk:$device_risk_version"
 
   api 'com.google.android.gms:play-services-location:17.1.0'
 
-  // Network
+  // For < 0.71, this will be from the local maven repo
+  // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
   api 'com.facebook.react:react-native:+'
+
+  // Network
   implementation 'com.facebook.infer.annotation:infer-annotation:0.18.0'
   implementation 'javax.inject:javax.inject:1'
 }
