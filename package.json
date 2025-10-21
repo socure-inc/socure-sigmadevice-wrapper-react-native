@@ -1,6 +1,6 @@
 {
   "name": "@socure-inc/react-native-device-risk",
-  "version": "4.6.2",
+  "version": "4.7.0",
   "description": "React bridge to enable iOS and Android Device Risk SDKs to be used by React Native apps",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
