@@ -34,7 +34,7 @@ android {
     minSdkVersion 21
     targetSdkVersion 34
     versionCode 10016
-    versionName "4.7.0"
+    versionName "4.7.1"
     multiDexEnabled true
   }
   buildFeatures {
@@ -67,7 +67,7 @@ repositories {
 dependencies {
   // noinspection GradleDynamicVersion
   implementation fileTree(dir: "libs", include: ["*.jar"])
-  def device_risk_version = "4.7.0"
+  def device_risk_version = "4.7.1"
   implementation "com.socure.devicerisk.sdk:socure-devicerisk:$device_risk_version"
 
   api 'com.google.android.gms:play-services-location:17.1.0'
