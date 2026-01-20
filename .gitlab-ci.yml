@@ -1,6 +1,16 @@
 include:
   - project: plt/gitlab-pipeline-templates
     file: jobs/publish/publish-node-mend.gitlab-ci.yml
+  - project: 'plt/gitlab-pipeline-templates'
+    file: jobs/publish/blackduck-scan.gitlab-ci.yml
+
+variables:
+  # BlackDuck / Mend configuration
+  MEND_PRODUCT_NAME: "socure-external"
+  BLACKDUCK_SCAN: "true"
+  BLACKDUCK_STRICT_SCAN: "false"
+  # Disable accuracy enforcement to avoid FAILURE_ACCURACY_NOT_MET in Detect 11.x
+  DETECT_ACCURACY_REQUIRED: "NONE"
 
 default:
   image: registry.us-east-1.build.socure.link/platform/gitlab-runner-nodejs:18.7
@@ -43,6 +53,9 @@ mend-scan-fips:
     - build
   variables:
     MEND_PRODUCT_NAME: "socure-external"
+
+blackduck_security_scan_execution:
+  stage: scan
 
 lint:
   stage: lint
